@@ -1,0 +1,83 @@
+# NOTE: update this with your service name
+service: smart-photo-api
+
+# Create an optimized package for our functions
+package:
+  individually: true
+
+plugins:
+  - serverless-bundle # Package our functions with Webpack
+  - serverless-offline
+  - serverless-dotenv-plugin # Load .env as environment variables
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  # To load environment variables externally
+  # rename env.example to .env and uncomment
+  # the following line. Also, make sure to not
+  # commit your .env.
+  #
+  #environment:
+  #  SAMPLE_ENV_VAR: ${env:SAMPLE_ENV_VAR}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - rekognition:DetectLabels
+      Resource: "arn:aws:dynamodb:us-east-1:*:*"
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - http:
+          path: hello
+          method: get
+  uploadPhoto:
+    handler: uploadPhoto.main
+    events:
+      - http:
+          path: photo
+          method: post
+  getPhotos:
+    handler: getPhotos.main
+    events:
+      - http:
+          path: photo
+          method: get
+  searchPhoto:
+    handler: searchPhoto.main
+    events:
+      - http:
+          path: search
+          method: put
+  searchById:
+    handler: searchById.main
+    events:
+      - http:
+          path: singlephoto
+          method: put
+  createUser:
+    handler: createUser.main
+    events:
+      - http:
+          path: user
+          method: post
+  confirmUser:
+    handler: confirmUser.main
+    events:
+      - http:
+          path: user
+          method: put
+
+
